@@ -25,24 +25,24 @@ public class SQLiteSample {
 	private PreparedStatement ps = null;
 
 	public static void main(String[] args) throws Exception {
-		SQLiteSample cd = new SQLiteSample();
+		SQLiteSample ss = new SQLiteSample();
 		try {
-			cd.executeUpdate("drop table if exists sample");
-			cd.executeUpdate("create table sample ( id integer, name text )");
+			ss.executeUpdate("drop table if exists sample");
+			ss.executeUpdate("create table sample ( id integer, name text )");
 			int[] id = { 0 };
 			Files.list(Path.of(IMPORT_DIR)).forEach((ThrowingConsumer<Path>) path -> {
 				Files.readAllLines(path, StandardCharsets.UTF_8).forEach(line -> {
-					cd.executeUpdate("insert into sample values ( ?, ? )", ++id[0], line);
+					ss.executeUpdate("insert into sample values ( ?, ? )", ++id[0], line);
 				});
 			});
-			ResultSet rs = cd.executeQuery("select * from sample where id > ?", 1);
+			ResultSet rs = ss.executeQuery("select * from sample where id > ?", 1);
 			List<String> strBuf = new ArrayList<>();
 			while (rs.next()) {
 				strBuf.add(String.format("{ id: %d, name: %s }", rs.getInt("id"), rs.getString("name")));
 			}
 			Files.write(Path.of(EXPORT_DIR, EXPORT_FILE), strBuf, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
 		} finally {
-			cd.closeConnection();
+			ss.closeConnection();
 		}
 	}
 
