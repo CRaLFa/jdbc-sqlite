@@ -16,50 +16,34 @@ public class SQLiteClient {
 		con = DriverManager.getConnection(dbUrl);
 	}
 
-	public ResultSet executeQuery(String sql, Object... params) {
+	public ResultSet executeQuery(String sql, Object... params) throws SQLException {
 		closeStatement();
-		try {
-			ps = con.prepareStatement(sql);
-			for (int i = 0; i < params.length; i++) {
-				ps.setObject(i + 1, params[i]);
-			}
-			return ps.executeQuery();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
+		ps = con.prepareStatement(sql);
+		for (int i = 0; i < params.length; i++) {
+			ps.setObject(i + 1, params[i]);
 		}
+		return ps.executeQuery();
 	}
 
-	public int executeUpdate(String sql, Object... params) {
+	public int executeUpdate(String sql, Object... params) throws SQLException {
 		closeStatement();
-		try {
-			ps = con.prepareStatement(sql);
-			for (int i = 0; i < params.length; i++) {
-				ps.setObject(i + 1, params[i]);
-			}
-			return ps.executeUpdate();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
+		ps = con.prepareStatement(sql);
+		for (int i = 0; i < params.length; i++) {
+			ps.setObject(i + 1, params[i]);
 		}
+		return ps.executeUpdate();
 	}
 
-	public void closeConnection() {
+	public void closeConnection() throws SQLException {
 		closeStatement();
 		if (con != null) {
-			try {
-				con.close();
-			} catch (SQLException e) {
-				throw new RuntimeException(e);
-			}
+			con.close();
 		}
 	}
 
-	private void closeStatement() {
+	private void closeStatement() throws SQLException {
 		if (ps != null) {
-			try {
-				ps.close();
-			} catch (SQLException e) {
-				throw new RuntimeException(e);
-			}
+			ps.close();
 		}
 	}
 

@@ -24,7 +24,7 @@ public class SQLiteSample {
 			client.executeUpdate("create table sample ( id integer, name text )");
 			int[] id = { 0 };
 			Files.list(Path.of(IMPORT_DIR)).forEach((ThrowingConsumer<Path>) path -> {
-				Files.readAllLines(path, StandardCharsets.UTF_8).forEach(line -> {
+				Files.readAllLines(path, StandardCharsets.UTF_8).forEach((ThrowingConsumer<String>) line -> {
 					client.executeUpdate("insert into sample values ( ?, ? )", ++id[0], line);
 				});
 			});
