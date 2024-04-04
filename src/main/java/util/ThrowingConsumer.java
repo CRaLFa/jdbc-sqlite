@@ -5,6 +5,8 @@ import java.util.function.Consumer;
 @FunctionalInterface
 public interface ThrowingConsumer<T> extends Consumer<T> {
 
+	void acceptOrThrow(T t) throws Throwable;
+
 	@Override
 	default void accept(T t) {
 		try {
@@ -13,7 +15,5 @@ public interface ThrowingConsumer<T> extends Consumer<T> {
 			throw new RuntimeException(e);
 		}
 	}
-
-	void acceptOrThrow(T t) throws Throwable;
 
 }
