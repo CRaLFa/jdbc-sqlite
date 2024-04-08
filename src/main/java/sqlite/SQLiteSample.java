@@ -1,5 +1,7 @@
 package sqlite;
 
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -21,8 +23,9 @@ public class SQLiteSample {
 		try {
 			client.executeUpdate("drop table if exists sample");
 			client.executeUpdate("create table sample ( id integer, name text )");
+			FileSystem fs = FileSystems.getDefault();
 			int[] id = { 0 };
-			Files.list(Path.of(IMPORT_DIR)).forEach((ThrowingConsumer<Path>) path -> {
+			Files.list(fs.getPath(IMPORT_DIR)).forEach((ThrowingConsumer<Path>) path -> {
 				Files.readAllLines(path).forEach((ThrowingConsumer<String>) line -> {
 					client.executeUpdate("insert into sample values ( ?, ? )", ++id[0], line);
 				});
@@ -32,7 +35,7 @@ public class SQLiteSample {
 			while (rs.next()) {
 				strBuf.add(String.format("{ id: %d, name: %s }", rs.getInt("id"), rs.getString("name")));
 			}
-			Files.write(Path.of(EXPORT_DIR, EXPORT_FILE), strBuf, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+			Files.write(fs.getPath(EXPORT_DIR, EXPORT_FILE), strBuf, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
 		} finally {
 			client.closeConnection();
 		}
