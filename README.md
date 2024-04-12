@@ -8,5 +8,11 @@
 
 ```
 $ mvn package
-$ java -jar target/data-conversion-1.0.0-jar-with-dependencies.jar
+$ java -jar target/data-conversion-1.0.0-jar-with-dependencies.jar <dbFile> <importDir> <exportDir> <exportFile>
+```
+
+## Run test
+
+```
+$ mvn test
 ```

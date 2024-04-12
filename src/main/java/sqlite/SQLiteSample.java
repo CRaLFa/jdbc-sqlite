@@ -1,10 +1,12 @@
 package sqlite;
 
+import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,41 +14,50 @@ import util.ThrowingConsumer;
 
 public class SQLiteSample {
 
-	private static final String DB_URL = "jdbc:sqlite:sample.db";
-	private static final String IMPORT_DIR = "import";
-	private static final String EXPORT_DIR = "export";
-	private static final String EXPORT_FILE = "result.txt";
+	private final SQLiteClient client;
 
 	public static void main(String[] args) throws Exception {
-		SQLiteClient client = new SQLiteClient(DB_URL);
+		if (args.length < 4) {
+			System.err.println("Usage: <program> dbFile importDir exportDir exportFile");
+			return;
+		}
+
+		SQLiteSample ss = new SQLiteSample(args[0]);
+		FileSystem fs = FileSystems.getDefault();
 		try {
-			importFile(client);
-			exportFile(client);
+			ss.importFile(fs.getPath(args[1]));
+			ss.exportFile(fs.getPath(args[2], args[3]));
 		} finally {
-			client.closeConnection();
+			ss.closeConnection();
 		}
 	}
 
-	private static void importFile(SQLiteClient client) throws Exception {
+	public SQLiteSample(String dbFileName) throws Exception {
+		this.client = new SQLiteClient("jdbc:sqlite:" + dbFileName);
+	}
+
+	public void importFile(Path importDirPath) throws Exception {
 		client.executeUpdate("drop table if exists sample");
 		client.executeUpdate("create table sample ( id integer, name text )");
-		Path importDirPath = FileSystems.getDefault().getPath(IMPORT_DIR);
 		int[] id = { 0 };
 		Files.list(importDirPath).forEach((ThrowingConsumer<Path>) path -> {
-			Files.readAllLines(path).forEach((ThrowingConsumer<String>) line -> {
+			Files.lines(path).forEach((ThrowingConsumer<String>) line -> {
 				client.executeUpdate("insert into sample values ( ?, ? )", ++id[0], line);
 			});
 		});
 	}
 
-	private static void exportFile(SQLiteClient client) throws Exception {
+	public void exportFile(Path exportFilePath) throws Exception {
 		ResultSet rs = client.executeQuery("select * from sample where id > ?", 1);
 		List<String> strBuf = new ArrayList<>();
 		while (rs.next()) {
 			strBuf.add(String.format("{ id: %d, name: %s }", rs.getInt("id"), rs.getString("name")));
 		}
-		Path exportFilePath = FileSystems.getDefault().getPath(EXPORT_DIR, EXPORT_FILE);
 		Files.write(exportFilePath, strBuf, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+	}
+
+	public void closeConnection() throws SQLException {
+		client.closeConnection();
 	}
 
 }
