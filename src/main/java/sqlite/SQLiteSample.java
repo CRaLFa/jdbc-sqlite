@@ -43,6 +43,7 @@ public class SQLiteSample {
 			Files.lines(path).forEach((ThrowingConsumer<String>) line -> {
 				client.executeUpdate("insert into sample values ( ?, ? )", ++id[0], line);
 			});
+			System.out.println(String.format("Successfully imported file %s", path.toAbsolutePath().toString()));
 		});
 	}
 
@@ -53,6 +54,7 @@ public class SQLiteSample {
 			strBuf.add(String.format("{ id: %d, name: %s }", rs.getInt("id"), rs.getString("name")));
 		}
 		Files.write(exportFilePath, strBuf, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+		System.out.println(String.format("Successfully exported file %s", exportFilePath.toAbsolutePath().toString()));
 	}
 
 	public void closeConnection() throws SQLException {
