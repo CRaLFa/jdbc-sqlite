@@ -14,8 +14,6 @@ import util.ThrowingConsumer;
 
 public class SQLiteSample {
 
-	private final SQLiteClient client;
-
 	public static void main(String[] args) throws Exception {
 		if (args.length < 4) {
 			System.err.println("Usage: <program> dbFile importDir exportDir exportFile");
@@ -31,6 +29,8 @@ public class SQLiteSample {
 		}
 	}
 
+	private final SQLiteClient client;
+
 	public SQLiteSample(String dbFileName) throws Exception {
 		this.client = new SQLiteClient("jdbc:sqlite:" + dbFileName);
 	}
@@ -43,7 +43,7 @@ public class SQLiteSample {
 			Files.lines(path).forEach((ThrowingConsumer<String>) line -> {
 				client.executeUpdate("insert into sample values ( ?, ? )", ++id[0], line);
 			});
-			System.out.println(String.format("Successfully imported file %s", path.toAbsolutePath().toString()));
+			System.out.printf("Successfully imported file %s\n", path.toAbsolutePath().toString());
 		});
 	}
 
@@ -54,7 +54,7 @@ public class SQLiteSample {
 			strBuf.add(String.format("{ id: %d, name: %s }", rs.getInt("id"), rs.getString("name")));
 		}
 		Files.write(exportFilePath, strBuf, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-		System.out.println(String.format("Successfully exported file %s", exportFilePath.toAbsolutePath().toString()));
+		System.out.printf("Successfully exported file %s\n", exportFilePath.toAbsolutePath().toString());
 	}
 
 	public void closeConnection() throws SQLException {
