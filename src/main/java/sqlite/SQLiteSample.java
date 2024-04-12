@@ -1,6 +1,5 @@
 package sqlite;
 
-import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,24 +20,33 @@ public class SQLiteSample {
 	public static void main(String[] args) throws Exception {
 		SQLiteClient client = new SQLiteClient(DB_URL);
 		try {
-			client.executeUpdate("drop table if exists sample");
-			client.executeUpdate("create table sample ( id integer, name text )");
-			FileSystem fs = FileSystems.getDefault();
-			int[] id = { 0 };
-			Files.list(fs.getPath(IMPORT_DIR)).forEach((ThrowingConsumer<Path>) path -> {
-				Files.readAllLines(path).forEach((ThrowingConsumer<String>) line -> {
-					client.executeUpdate("insert into sample values ( ?, ? )", ++id[0], line);
-				});
-			});
-			ResultSet rs = client.executeQuery("select * from sample where id > ?", 1);
-			List<String> strBuf = new ArrayList<>();
-			while (rs.next()) {
-				strBuf.add(String.format("{ id: %d, name: %s }", rs.getInt("id"), rs.getString("name")));
-			}
-			Files.write(fs.getPath(EXPORT_DIR, EXPORT_FILE), strBuf, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+			importFile(client);
+			exportFile(client);
 		} finally {
 			client.closeConnection();
 		}
+	}
+
+	private static void importFile(SQLiteClient client) throws Exception {
+		client.executeUpdate("drop table if exists sample");
+		client.executeUpdate("create table sample ( id integer, name text )");
+		Path importDirPath = FileSystems.getDefault().getPath(IMPORT_DIR);
+		int[] id = { 0 };
+		Files.list(importDirPath).forEach((ThrowingConsumer<Path>) path -> {
+			Files.readAllLines(path).forEach((ThrowingConsumer<String>) line -> {
+				client.executeUpdate("insert into sample values ( ?, ? )", ++id[0], line);
+			});
+		});
+	}
+
+	private static void exportFile(SQLiteClient client) throws Exception {
+		ResultSet rs = client.executeQuery("select * from sample where id > ?", 1);
+		List<String> strBuf = new ArrayList<>();
+		while (rs.next()) {
+			strBuf.add(String.format("{ id: %d, name: %s }", rs.getInt("id"), rs.getString("name")));
+		}
+		Path exportFilePath = FileSystems.getDefault().getPath(EXPORT_DIR, EXPORT_FILE);
+		Files.write(exportFilePath, strBuf, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
 	}
 
 }
