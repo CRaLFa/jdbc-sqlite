@@ -21,7 +21,6 @@ public class SQLiteSample {
 			System.err.println("Usage: <program> dbFile importDir exportDir exportFile");
 			return;
 		}
-
 		SQLiteSample ss = new SQLiteSample(args[0]);
 		FileSystem fs = FileSystems.getDefault();
 		try {
