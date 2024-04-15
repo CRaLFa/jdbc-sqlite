@@ -1,5 +1,7 @@
 # jdbc-sqlite
 
+A sample for creating and accessing SQLite database files in Java
+
 ## Prerequisites
 
 - [Apache Maven](https://maven.apache.org/)
