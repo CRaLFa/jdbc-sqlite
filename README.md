@@ -10,7 +10,7 @@ A sample for creating and accessing SQLite database files in Java
 ## Usage
 
 ```
-$ touch {im,ex}port
+$ mkdir {im,ex}port
 $ mvn package
 $ java -jar target/data-conversion-1.0.0-jar-with-dependencies.jar <dbFile> <importDir> <exportDir> <exportFile>
 ```
