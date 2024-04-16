@@ -4,7 +4,7 @@ A sample for creating and accessing SQLite database files in Java
 
 ## Prerequisites
 
-- Java (>= 1.8)
+- Java (≧ 1.8)
 - [Apache Maven](https://maven.apache.org/)
 
 ## Usage
